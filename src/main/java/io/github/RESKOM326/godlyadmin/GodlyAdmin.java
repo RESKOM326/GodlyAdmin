@@ -46,8 +46,7 @@ public class GodlyAdmin extends JavaPlugin
 			}
 			else if(dbtype.equals("FILE")) 
 			{
-				File f = new File(this.getDataFolder(), "GodlyAdmin.cfg");
-				dataManager = new PlainGodsDataManager(this, f);
+				dataManager = new PlainGodsDataManager(this, "GodlyAdmin.cfg");
 				boolean res = dataManager.initData();
 				if(!res)
 				{
