@@ -2,6 +2,8 @@ package io.github.RESKOM326.godlyadmin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import io.github.RESKOM326.godlyadmin.database.GodsDataManager;
+import io.github.RESKOM326.godlyadmin.database.PlainGodsDataManager;
+
 import java.io.File;
 import java.util.Iterator;
 import java.util.Locale;
@@ -39,18 +41,22 @@ public class GodlyAdmin extends JavaPlugin
 				boolean res = dataManager.initData();
 				if(!res)
 				{
-					this.getLogger().log(Level.SEVERE, "Cannot initialize data!");
-					System.exit(1);
+					onErrorExit("Cannot initialize data!");
 				}
 			}
 			else if(dbtype.equals("FILE")) 
 			{
-				new File(this.getDataFolder(), "config.yml");
+				File f = new File(this.getDataFolder(), "GodlyAdmin.cfg");
+				dataManager = new PlainGodsDataManager(this, f);
+				boolean res = dataManager.initData();
+				if(!res)
+				{
+					onErrorExit("Cannot initialize data!");
+				}
 			}
 			else 
 			{
-				this.getLogger().log(Level.SEVERE, "No database type was specified!");
-				System.exit(1);
+				onErrorExit("No database type was specified!");
 			}
 			
 			Bukkit.getServer().getPluginManager().registerEvents(new GodlyAdminPlayerListener(), this);
@@ -68,8 +74,7 @@ public class GodlyAdmin extends JavaPlugin
 		} 
 		catch(NumberFormatException e) 
 		{
-			this.getLogger().log(Level.SEVERE, "Database port is not a number");
-			System.exit(1);
+			onErrorExit("Database port is not a number");
 		}
 	}
 	@Override
@@ -79,5 +84,11 @@ public class GodlyAdmin extends JavaPlugin
 		this.getLogger().log(Level.INFO, "***************************");
 		this.getLogger().log(Level.INFO, "GodlyAdmin is disabled!");
 		this.getLogger().log(Level.INFO, "***************************");
+	}
+	
+	private void onErrorExit(String msg)
+	{
+		this.getLogger().log(Level.SEVERE, msg);
+		System.exit(1);
 	}
 }
