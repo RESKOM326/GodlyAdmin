@@ -1,0 +1,57 @@
+name: GodlyAdmin
+main: io.github.RESKOM326.godlyadmin.GodlyAdmin
+version: 0.0.1-SNAPSHOT
+author: RESKOM326
+website: https://reskom326.github.io/
+description: Commands and events that give you the power of a god
+api-version: 1.19
+commands:
+  ignite:
+    aliases: [cleanse, purge]
+    description: Sets on fire a player for an amount of time measured in seconds
+    usage: Usage -> /ignite <player> <time>
+    permission: GodlyAdmin.ignite
+    permission-message: You do not have permissions to execute this command
+  hideme:
+    aliases: [hidefrom]
+    description: Hides a player from every player or either the chosen players
+    usage: Usage -> /hideme [player 1] [player 2] ... [player N]
+    permission: GodlyAdmin.hideme
+    permission-message: You do not have permissions to execute this command
+  unhideme:
+    aliases: [showme, showfrom]
+    description: Unhides a player from every player or either the chosen players
+    usage: Usage -> /unhideme [player 1] [player 2] ... [player N]
+    permission: GodlyAdmin.unhideme
+    permission-message: You do not have permissions to execute this command
+  ascend:
+    aliases: [setgod, addgod]
+    description: Sets a player as a God, giving him unlimited power
+    usage: Usage -> /ascend <player>
+    permission: GodlyAdmin.ascend
+    permission-message: You do not have permissions to execute this command
+  mortalize:
+    aliases: [quitgod, removegod]
+    description: Quits a player as a God, removing his unlimited power
+    usage: Usage -> /mortalize <player>
+    permission: GodlyAdmin.mortalize
+    permission-message: You do not have permissions to execute this command
+permissions:
+  GodlyAdmin.*:
+    description: Grants access to all GodlyAdmin commands
+    children:
+      GodlyAdmin.ignite: true
+      GodlyAdmin.hideme: true
+      GodlyAdmin.unhideme: true
+      GodlyAdmin.ascend: true
+      GodlyAdmin.mortalize: true
+  GodlyAdmin.ignite:
+    default: op
+  GodlyAdmin.hideme:
+    default: op
+  GodlyAdmin.unhideme:
+    default: op
+  GodlyAdmin.ascend:
+    default: op
+  GodlyAdmin.mortalize:
+    default: op
