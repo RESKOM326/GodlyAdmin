@@ -1,5 +1,11 @@
 package io.github.RESKOM326.godlyadmin;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,22 +19,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.RayTraceResult;
+import io.github.RESKOM326.godlyadmin.utils.*;
 import net.kyori.adventure.text.Component;
 
 public class GodlyAdminPlayerListener implements Listener
 {
-	private final double THRESHOLD = .0001;
 	private final double DAMAGE = 1000000000;
-	private int MAX_ENTITY_DISTANCE = 120;
-	private int MAX_TP_DISTANCE = 300;
-	private float SMITE_POWER = 5F;
-	private boolean SMITE_BREAK = true;
-	private boolean SMITE_SETFIRE = true;
+	private Option opts;
+	private GodlyAdmin plugin;
 	
-	public GodlyAdminPlayerListener()
+	public GodlyAdminPlayerListener(GodlyAdmin plugin)
 	{
-		loadOptions();
+		this.plugin = plugin;
+		opts = new Option();
+		this.plugin.getLogger().log(Level.INFO, "GodlyAdmin configuration data correctly processed!");
+		logDataInfo();
 	}
 	public boolean fInTheChat(PlayerDeathEvent event) 
 	{
@@ -46,13 +51,13 @@ public class GodlyAdminPlayerListener implements Listener
 		{
 			// SMITE!
 			Player pl = event.getPlayer();
-			Entity ent = pl.getTargetEntity(MAX_ENTITY_DISTANCE, true);
+			Entity ent = pl.getTargetEntity(opts.getMaxSmiteRange(), true);
 			if(ent == null || !(ent instanceof Damageable)) return false;
 			World world = pl.getWorld();
 			Location loc = ent.getLocation();
 			world.strikeLightning(loc);
 			((Damageable) ent).damage(DAMAGE);
-			world.createExplosion(loc, 5F, true, true);
+			world.createExplosion(loc, opts.getSmitePower(), opts.getSmiteFireable(), opts.getSmiteBreakable());
 			return true;
 			
 		}
@@ -67,11 +72,18 @@ public class GodlyAdminPlayerListener implements Listener
 		boolean clickCondition = event.getAction() == Action.RIGHT_CLICK_AIR;
 		if(godCondition && materialCondition && clickCondition)
 		{
-			// Teleport
+			// Teleport to the targeted block, but never inside the block: teleport to adjacent air
 			Player pl = event.getPlayer();
-			Block bck = pl.getTargetBlock(null, MAX_TP_DISTANCE);
-			if(bck == null) return false;
-			Location loc = bck.getLocation();
+			Set<Material> transparent = new HashSet<Material>();
+			transparent.add(Material.AIR);
+			transparent.add(Material.WATER);
+			transparent.add(Material.GLASS_PANE);
+		    List<Block> lastTwoTargetBlocks = pl.getLastTwoTargetBlocks(transparent, opts.getMaxTpRange());
+		    if(lastTwoTargetBlocks.size() != 2) return false;
+		    Block adjacentBlock = lastTwoTargetBlocks.get(0);
+			Location loc = adjacentBlock.getLocation();
+			loc.setYaw(pl.getLocation().getYaw());
+			loc.setPitch(pl.getLocation().getPitch());
 			boolean res = pl.teleport(loc);
 			if(!res) return false;
 			return true;
@@ -79,25 +91,12 @@ public class GodlyAdminPlayerListener implements Listener
 		return false;
 	}
 	
-	private void loadOptions()
+	private void logDataInfo()
 	{
-		int maxSmite = GodlyAdmin.config.getInt("options.maxSmiteRange");
-		int maxTp = GodlyAdmin.config.getInt("options.maxTpRange");
-		float smPower = (float) GodlyAdmin.config.getInt("options.smitePower");
-		String smBreak = GodlyAdmin.config.getString("options.smiteBreak");
-		String smSetFire = GodlyAdmin.config.getString("options.smiteSetFire");
-		
-		if(maxSmite != 0 && maxSmite <= 120) MAX_ENTITY_DISTANCE = maxSmite;
-		if(maxTp != 0) MAX_TP_DISTANCE = maxTp;
-		if(!(Math.abs(smPower - 0) < THRESHOLD)) SMITE_POWER = smPower;
-		if(smBreak != null)
-		{
-			SMITE_BREAK = (smBreak.equalsIgnoreCase("true")) ? true : false;
-		}
-		if(smSetFire != null)
-		{
-			SMITE_SETFIRE = (smSetFire.equalsIgnoreCase("true")) ? true : false;
-		}
+		this.plugin.getLogger().log(Level.INFO, "Maximum smite range    --> " + opts.getMaxSmiteRange());
+		this.plugin.getLogger().log(Level.INFO, "Maximum teleport range --> " + opts.getMaxTpRange());
+		this.plugin.getLogger().log(Level.INFO, "Smite breaks blocks    --> " + opts.getSmiteBreakable());
+		this.plugin.getLogger().log(Level.INFO, "Smite power level      --> " + opts.getSmitePower());
+		this.plugin.getLogger().log(Level.INFO, "Smite ignites blocks   --> " + opts.getSmiteFireable());
 	}
-	
 }

@@ -1,6 +1,7 @@
 package io.github.RESKOM326.godlyadmin;
 
 import org.bukkit.plugin.java.JavaPlugin;
+
 import io.github.RESKOM326.godlyadmin.database.GodsDataManager;
 import io.github.RESKOM326.godlyadmin.database.PlainGodsDataManager;
 
@@ -13,16 +14,17 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class GodlyAdmin extends JavaPlugin
 {
-	static GodsDataManager dataManager;
-	static FileConfiguration config;
+	public static GodsDataManager dataManager;
+	public static FileConfiguration config;
 	@Override
 	public void onEnable() 
 	{
 		try 
 		{
 			loadConfig();
+			this.getLogger().log(Level.INFO, "GodlyAdmin database data correctly processed!");
 			
-			Bukkit.getServer().getPluginManager().registerEvents(new GodlyAdminPlayerListener(), this);
+			Bukkit.getServer().getPluginManager().registerEvents(new GodlyAdminPlayerListener(this), this);
 			
 			Iterator<String> it = this.getDescription().getCommands().keySet().iterator();
 			while(it.hasNext())
@@ -36,7 +38,7 @@ public class GodlyAdmin extends JavaPlugin
 		} 
 		catch(NumberFormatException e) 
 		{
-			onErrorExit("Database port is not a number");
+			onErrorExit(e.getMessage());
 		}
 	}
 	@Override
@@ -78,7 +80,7 @@ public class GodlyAdmin extends JavaPlugin
 		}
 		else if(dbtype.equals("FILE")) 
 		{
-			dataManager = new PlainGodsDataManager(this, "GodlyAdmin.cfg");
+			dataManager = new PlainGodsDataManager(this, "GodlyAdmin.db");
 			boolean res = dataManager.initData();
 			if(!res)
 			{
