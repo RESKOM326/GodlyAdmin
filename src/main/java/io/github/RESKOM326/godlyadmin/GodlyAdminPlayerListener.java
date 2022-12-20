@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 
 public class GodlyAdminPlayerListener implements Listener
 {
+	private final double THRESHOLD = .0001;
 	private final double DAMAGE = 1000000000;
 	private int MAX_ENTITY_DISTANCE = 120;
 	private int MAX_TP_DISTANCE = 300;
@@ -82,8 +83,21 @@ public class GodlyAdminPlayerListener implements Listener
 	{
 		int maxSmite = GodlyAdmin.config.getInt("options.maxSmiteRange");
 		int maxTp = GodlyAdmin.config.getInt("options.maxTpRange");
+		float smPower = (float) GodlyAdmin.config.getInt("options.smitePower");
+		String smBreak = GodlyAdmin.config.getString("options.smiteBreak");
+		String smSetFire = GodlyAdmin.config.getString("options.smiteSetFire");
+		
 		if(maxSmite != 0 && maxSmite <= 120) MAX_ENTITY_DISTANCE = maxSmite;
 		if(maxTp != 0) MAX_TP_DISTANCE = maxTp;
+		if(!(Math.abs(smPower - 0) < THRESHOLD)) SMITE_POWER = smPower;
+		if(smBreak != null)
+		{
+			SMITE_BREAK = (smBreak.equalsIgnoreCase("true")) ? true : false;
+		}
+		if(smSetFire != null)
+		{
+			SMITE_SETFIRE = (smSetFire.equalsIgnoreCase("true")) ? true : false;
+		}
 	}
 	
 }
