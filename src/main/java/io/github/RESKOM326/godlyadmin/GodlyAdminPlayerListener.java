@@ -28,12 +28,17 @@ public class GodlyAdminPlayerListener implements Listener
 	private Option opts;
 	private GodlyAdmin plugin;
 	
+	private Set<Material> transparent = new HashSet<Material>();
+	
 	public GodlyAdminPlayerListener(GodlyAdmin plugin)
 	{
 		this.plugin = plugin;
 		opts = new Option();
 		this.plugin.getLogger().log(Level.INFO, "GodlyAdmin configuration data correctly processed!");
 		logDataInfo();
+		transparent.add(Material.AIR);
+		transparent.add(Material.WATER);
+		transparent.add(Material.GLASS_PANE);
 	}
 	public boolean fInTheChat(PlayerDeathEvent event) 
 	{
@@ -74,10 +79,6 @@ public class GodlyAdminPlayerListener implements Listener
 		{
 			// Teleport to the targeted block, but never inside the block: teleport to adjacent air
 			Player pl = event.getPlayer();
-			Set<Material> transparent = new HashSet<Material>();
-			transparent.add(Material.AIR);
-			transparent.add(Material.WATER);
-			transparent.add(Material.GLASS_PANE);
 		    List<Block> lastTwoTargetBlocks = pl.getLastTwoTargetBlocks(transparent, opts.getMaxTpRange());
 		    if(lastTwoTargetBlocks.size() != 2) return false;
 		    Block adjacentBlock = lastTwoTargetBlocks.get(0);
