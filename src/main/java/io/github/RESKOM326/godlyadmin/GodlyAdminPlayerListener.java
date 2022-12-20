@@ -19,9 +19,16 @@ import net.kyori.adventure.text.Component;
 public class GodlyAdminPlayerListener implements Listener
 {
 	private final double DAMAGE = 1000000000;
-	private final int MAX_DISTANCE = 120;
+	private int MAX_ENTITY_DISTANCE = 120;
+	private int MAX_TP_DISTANCE = 300;
+	private float SMITE_POWER = 5F;
+	private boolean SMITE_BREAK = true;
+	private boolean SMITE_SETFIRE = true;
 	
-	public GodlyAdminPlayerListener() {}
+	public GodlyAdminPlayerListener()
+	{
+		loadOptions();
+	}
 	public boolean fInTheChat(PlayerDeathEvent event) 
 	{
 		event.deathMessage(Component.text("Press F to pay respects to " + event.getEntity().getName()));
@@ -38,7 +45,7 @@ public class GodlyAdminPlayerListener implements Listener
 		{
 			// SMITE!
 			Player pl = event.getPlayer();
-			Entity ent = pl.getTargetEntity(MAX_DISTANCE, true);
+			Entity ent = pl.getTargetEntity(MAX_ENTITY_DISTANCE, true);
 			if(ent == null || !(ent instanceof Damageable)) return false;
 			World world = pl.getWorld();
 			Location loc = ent.getLocation();
@@ -61,7 +68,7 @@ public class GodlyAdminPlayerListener implements Listener
 		{
 			// Teleport
 			Player pl = event.getPlayer();
-			Block bck = pl.getTargetBlock(null, 300);
+			Block bck = pl.getTargetBlock(null, MAX_TP_DISTANCE);
 			if(bck == null) return false;
 			Location loc = bck.getLocation();
 			boolean res = pl.teleport(loc);
@@ -69,6 +76,14 @@ public class GodlyAdminPlayerListener implements Listener
 			return true;
 		}
 		return false;
+	}
+	
+	private void loadOptions()
+	{
+		int maxSmite = GodlyAdmin.config.getInt("options.maxSmiteRange");
+		int maxTp = GodlyAdmin.config.getInt("options.maxTpRange");
+		if(maxSmite != 0 && maxSmite <= 120) MAX_ENTITY_DISTANCE = maxSmite;
+		if(maxTp != 0) MAX_TP_DISTANCE = maxTp;
 	}
 	
 }
